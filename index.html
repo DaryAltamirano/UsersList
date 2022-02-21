@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/@mdi/font@6.x/css/materialdesignicons.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+    <link rel="stylesheet" href="Interfaz.css">
+</head>
+
+<body>
+    <div id="app">
+        <v-app>
+            <v-main>
+                <div class="d-flex justify-space-between my-5">
+                    <div class="mx-5">
+                        <h2 class="mx-5">Freelancer({{total}}) </h2>
+                    </div>
+                    <div class="mx-5">
+                        <v-btn color="white" class="ma-1 blue--text">
+                            <v-icon right dark class="mx-1">
+                                mdi-filter-menu
+                            </v-icon>
+                            Filters
+                        </v-btn>
+                        <v-btn color="white" class="ma-1 blue--text">
+                            <v-icon right class="mx-1">
+                                mdi-format-columns
+                            </v-icon>
+                            Manage Columns
+                        </v-btn>
+                        <v-btn color="blue" class="ma-1 white--text">
+                            <v-icon right class="mx-1">
+                                mdi-account-plus-outline
+                            </v-icon>
+                            Add Contact
+                        </v-btn>
+
+                        <v-btn color="white" class="text-center blue--text">
+                            <v-icon right dark class="">
+                                mdi-dots-horizontal
+                            </v-icon>
+                        </v-btn>
+
+
+                    </div>
+                </div>
+
+                <template>
+                    <v-data-table :headers="headers" :items="usuarios" class=" Pborder elevation-19 ma-5" id="Ptable"
+                        :single-select="singleSelect" item-key="first_name" :loading="loading"
+                        :hide-default-footer="true" show-select>
+                        <template v-slot:item.avatar="{ item }">
+                            <v-avatar>
+                                <v-img max-height="70" max-width="70" class="mx-auto" :src=item.avatar></v-img>
+                            </v-avatar>
+                        </template>
+                        <template v-slot:body.append="{headers}" class=" text-start align-start  justify-start">
+                            <tr>
+                                <td colspan="3" class=" text-start align-start  justify-start">
+                                    <template>
+                                        <div class="  text-start align-start  justify-start">
+                                            <v-pagination v-model="page" :length="sizePage"
+                                                class="Pletrasmall text-start align-start  justify-start"
+                                                @input="onPageChange" prev-icon="mdi-menu-left"
+                                                next-icon="mdi-menu-right"></v-pagination>
+                                        </div>
+                                    </template>
+                                </td>
+                                <td>
+                                </td>
+                                <td class="footer-text" style="text-align: end !important;">
+                                    Showing {{page*per_page }} of {{total}}
+                                </td>
+
+                            </tr>
+                        </template>
+
+                    </v-data-table>
+                </template>
+            </v-main>
+        </v-app>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.26.0/axios.min.js"
+        integrity="sha512-bPh3uwgU5qEMipS/VOmRqynnMXGGSRv+72H/N260MQeXZIK4PG48401Bsby9Nq5P5fz7hy5UGNmC/W1Z51h2GQ=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script>
+        const baseApiUsers = 'https://reqres.in/api/users'
+        new Vue({
+            el: '#app',
+            vuetify: new Vuetify(),
+            data: {
+                page: 1,
+                pageCount: 5,
+                total: 0,
+                sizePage: 0,
+                per_page: 0,
+                singleSelect: false,
+                loading: false,
+                selected: [],
+                headers: [
+                    { text: 'Avatar', value: "avatar", align: "center", sortable: false, class: "Pletra" },
+                    { text: 'Nombre ', value: "first_name", align: "center", class: "Pletra" },
+                    { text: 'Apellido', value: "last_name", align: "center", class: "Pletra" },
+                    { text: 'Email', value: "email", align: "center", class: "Pletra" },
+                ],
+                usuarios: [],
+            },
+            mounted: function () {
+                this.get(baseApiUsers, 1)
+            },
+            methods: {
+                get: function (getUrl, page) {
+                    this.loading = true
+                    axios.get(getUrl + "?page=" + page)
+                        .then(response => {
+                            this.usuarios = response.data.data;
+                            this.loading = false;
+                            this.total = response.data.total;
+                            this.per_page = response.data.per_page;
+                            this.sizePage = response.data.total_pages;
+                        })
+                        .catch(error => console.log(error))
+
+                },
+                onPageChange: function () {
+                    this.get(baseApiUsers, this.page)
+                },
+            }
+
+        })
+    </script>
+</body>
+
+</html>
